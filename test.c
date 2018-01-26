@@ -7,11 +7,13 @@ int countab(char **tab)
 {
 	int i = 0;
 
+	printf("test2\n");
 	while (tab[i])
 	{
 		printf("countab tab[%d] = %s\n", i, tab[i]);
 		i++;
 	}
+	printf("test3\n");
 	return i;
 }
 
@@ -142,8 +144,10 @@ char **cptab(char **tab, int add, int del, int m)
 	i = 0;
 	k = 0;
 	nbl = countab(tab);
+	printf("test1\n");
 	if (!(tmp = (char **)malloc(sizeof(char *) * (nbl + 1 + add - del))))
 		return NULL;
+	printf("nbl +add - del = %d\n", nbl + add - del);
 	tmp[nbl + add - del] = NULL;
 	while (k < nbl)
 	{
@@ -205,6 +209,7 @@ void ft_addenvar(char ***envcp, char *str)
 	nbl = countab(*envcp);
 	tmp = cptab(*envcp, 1, 0, -1);
 	tmp[nbl] = ft_strdup(str);
+	
 	*envcp = tmp;
 }
 
