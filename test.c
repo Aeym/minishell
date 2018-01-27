@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../libft/libft.h"
+#include "../../FDF/libft/libft.h"
 #include <limits.h>
 
 
@@ -239,7 +239,6 @@ int main(int ac, char **av, char **envp)
 	int ret; // recupere l'emplacement de la variable d'env dans le tab envp
 	char *envname; // nom de la variable d'env quon veut set
 	int nbc; //nb char before '='
-	char str[] =  "salut \"     salut ca va\"";
 
 	char **envcp = cptab(envp, 0, 0, -1);
 	while(1)
@@ -304,6 +303,7 @@ int main(int ac, char **av, char **envp)
 						ft_addenvar(&envcp, split[1]);
 						envp = envcp;
 					}
+					free(envname);
 				}
 			}
 			else if (ft_strcmp(split[0], "unsetenv") == 0)
@@ -324,6 +324,7 @@ int main(int ac, char **av, char **envp)
 			}
 			free(line);
 			freetab(split);
+
 		}
 	}
 }
