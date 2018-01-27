@@ -7,13 +7,13 @@ int countab(char **tab)
 {
 	int i = 0;
 
-	printf("test2\n");
+	//printf("test2\n");
 	while (tab[i])
 	{
-		printf("countab tab[%d] = %s\n", i, tab[i]);
+		//printf("countab tab[%d] = %s\n", i, tab[i]);
 		i++;
 	}
-	printf("test3\n");
+	//printf("test3\n");
 	return i;
 }
 
@@ -144,15 +144,13 @@ char **cptab(char **tab, int add, int del, int m)
 	i = 0;
 	k = 0;
 	nbl = countab(tab);
-	printf("test1\n");
+	//printf("test1\n");
 	if (!(tmp = (char **)malloc(sizeof(char *) * (nbl + 1 + add - del))))
 		return NULL;
-	printf("nbl +add - del = %d\n", nbl + add - del);
+	//printf("nbl +add - del = %d\n", nbl + add - del);
 	tmp[nbl + add - del] = NULL;
 	while (k < nbl)
 	{
-		if (i == m)
-			k++;
 		nbc = ft_strlen(tab[k]);
 		if (!(tmp[i] = (char *)malloc(sizeof(char) * (nbc + 1))))
 			return NULL;
@@ -166,6 +164,8 @@ char **cptab(char **tab, int add, int del, int m)
 		//printf("tmp[%d] = %s\n", i, tmp[i]);
 		i++;
 		k++;
+		if (i == m)
+			k++;
 	}
 	return tmp;
 }
@@ -209,7 +209,8 @@ void ft_addenvar(char ***envcp, char *str)
 	nbl = countab(*envcp);
 	tmp = cptab(*envcp, 1, 0, -1);
 	tmp[nbl] = ft_strdup(str);
-	
+	countab(tmp);
+	freetab(*envcp);
 	*envcp = tmp;
 }
 
@@ -218,12 +219,13 @@ void ft_removenvar(char ***envcp, int i)
 	char **tmp;
 	int nbl;
 
-	printf("i = %d\n", i);
+	//printf("i = %d\n", i);
 
 	nbl = countab(*envcp);
 
-	printf("nbl = %s\n", nbl);
+	//printf("nbl = %d\n", nbl);
 	tmp = cptab(*envcp, 0, 1, i);
+	freetab(*envcp);
 	*envcp = tmp;
 }
 
@@ -249,69 +251,79 @@ int main(int ac, char **av, char **envp)
 		get_next_line(0, &line);
 		if (ft_strlen(line) == 0)
 			free(line);
-		split = splitmaison(line);
-		nbw = countab(split);
-		//ft_putstr(split[1]);
-		if (ft_strcmp(split[0], "exit") == 0)
-			return 0;
-		else if (ft_strcmp(split[0], "echo") == 0)
+		else
 		{
-			while (i < nbw)
+			split = splitmaison(line);
+			nbw = countab(split);
+			//ft_putstr(split[1]);
+			if (ft_strcmp(split[0], "exit") == 0)
 			{
-				ft_putstr(split[i]);
-				if (i != nbw - 1)
-					write(1, " ", 1);
-				else
+				free(line);
+				freetab(split);
+				freetab(envcp);
+				return 0;
+			}
+			else if (ft_strcmp(split[0], "echo") == 0)
+			{
+				while (i < nbw)
+				{
+					ft_putstr(split[i]);
+					if (i != nbw - 1)
+						write(1, " ", 1);
+					else
+						write(1, "\n", 1);
+					i++;
+				}
+			}
+			else if (ft_strcmp(split[0], "env") == 0)
+			{
+				i = 0;
+				nbenv = countab(envp);
+				printf("nbenv = %d\n", nbenv);
+				while (i < nbenv)
+				{
+					ft_putstr(envp[i]);
 					write(1, "\n", 1);
-				i++;
+					i++;
+				}
 			}
-		}
-		else if (ft_strcmp(split[0], "env") == 0)
-		{
-			i = 0;
-			nbenv = countab(envp);
-			while (i < nbenv)
+			else if (ft_strcmp(split[0], "setenv") == 0)
 			{
-				ft_putstr(envp[i]);
-				write(1, "\n", 1);
-				i++;
+				if ((nbc = checkequal(split[1])) != 0)
+				{
+					envname = ft_strsub(split[1], 0, nbc);
+					if ((ret = envexist(envcp, envname)) != -1)
+					{
+						free(envcp[ret]);
+						envcp[ret] = ft_strdup(split[1]);
+						envp = envcp;
+
+					}
+					else
+					{
+						ft_addenvar(&envcp, split[1]);
+						envp = envcp;
+					}
+				}
 			}
-		}
-		else if (ft_strcmp(split[0], "setenv") == 0)
-		{
-			if ((nbc = checkequal(split[1])) != 0)
+			else if (ft_strcmp(split[0], "unsetenv") == 0)
 			{
-				envname = ft_strsub(split[1], 0, nbc);
+				envname = split[1];
+				//printf("%s\n", envname);
+
 				if ((ret = envexist(envcp, envname)) != -1)
 				{
-					free(envcp[ret]);
-					envcp[ret] = ft_strdup(split[1]);
+					//printf("ret = %d\n", ret);
+					ft_removenvar(&envcp, ret);
 					envp = envcp;
 				}
 				else
 				{
-					ft_addenvar(&envcp, split[1]);
-					envp = envcp;
+					printf("error\n");
 				}
 			}
+			free(line);
+			freetab(split);
 		}
-		else if (ft_strcmp(split[0], "unsetenv") == 0)
-		{
-			envname = split[1];
-			printf("%s\n", envname);
-			if ((ret = envexist(envcp, envname)) != -1)
-			{
-				printf("ret = %d\n", ret);
-				ft_removenvar(&envcp, ret);
-				envp = envcp;
-			}
-			else
-			{
-				printf("error\n");
-			}
-		}
-		free(line);
-		freetab(split);
 	}
-	printf("%s\n", line);
 }
