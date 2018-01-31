@@ -2,7 +2,7 @@
 # define MINISHELL_H
 
 # include <stdlib.h>
-# include "../libft/libft.h"
+# include "../../libft/libft.h"
 # include <limits.h>
 
 
@@ -30,5 +30,11 @@ int	checkequal(char *str);
 int envexist(char **tab, char *str);
 void ft_addenvar(char ***envcp, char *str);
 void ft_removenvar(char ***envcp, int i);
+int	core_minishell(t_min *s, char ***envp);
+int	cmd_exit(t_min *s);
+int	cmd_echo(t_min *s);
+int cmd_env(t_min *s, char ***envp);
+int cmd_setenv(t_min *s, char ***envp);
+int cmd_unsetenv(t_min *s, char ***envp);
 
 # endif
